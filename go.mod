@@ -1,4 +1,4 @@
-module github.com/gin-contrib/rollbar
+module github.com/gin-contrib/ff-rollbar
 
 go 1.13
 

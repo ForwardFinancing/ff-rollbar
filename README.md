@@ -13,13 +13,13 @@ Middleware to integrate with [rollbar](https://rollbar.com/) error monitoring. I
 Download and install it:
 
 ```sh
-go get github.com/gin-contrib/rollbar
+go get github.com/ForwardFinancing/ff-rollbar
 ```
 
 Import it in your code:
 
 ```go
-import "github.com/gin-contrib/rollbar"
+import "github.com/ForwardFinancing/ff-rollbar"
 ```
 
 ## Example
@@ -30,18 +30,18 @@ package main
 import (
   "log"
 
-  "github.com/gin-contrib/rollbar"
+  ffrollbar "github.com/ForwardFinancing/ff-rollbar"
   "github.com/gin-gonic/gin"
 
-  roll "github.com/rollbar/rollbar-go"
+  "github.com/rollbar/rollbar-go"
 )
 
 func main() {
-  roll.SetToken("MY_TOKEN")
-  // roll.SetEnvironment("production") // defaults to "development"
+  rollbar.SetToken("MY_TOKEN")
+  // rollbar.SetEnvironment("production") // defaults to "development"
 
   r := gin.Default()
-  r.Use(rollbar.Recovery(true))
+  r.Use(ffrollbar.Recovery(true))
 
   if err := r.Run(":8080"); err != nil {
     log.Fatal(err)

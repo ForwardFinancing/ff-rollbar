@@ -1,4 +1,4 @@
-package rollbar
+package ffrollbar
 
 import (
 	"errors"

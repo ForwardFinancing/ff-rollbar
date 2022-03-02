@@ -1,4 +1,4 @@
-package rollbar
+package ffrollbar
 
 import (
 	"errors"
@@ -18,8 +18,9 @@ func Recovery(onlyCrashes bool) gin.HandlerFunc {
 			if rval := recover(); rval != nil {
 				debug.PrintStack()
 
-				rollbar.Critical(errors.New(fmt.Sprint(rval)), getCallers(3), map[string]string{
+				rollbar.Critical(errors.New(fmt.Sprint(rval)), getCallers(3), map[string]interface{}{
 					"endpoint": c.Request.RequestURI,
+					"params":   c.Request.URL.Query(),
 				})
 
 				c.AbortWithStatus(http.StatusInternalServerError)
@@ -27,9 +28,10 @@ func Recovery(onlyCrashes bool) gin.HandlerFunc {
 
 			if !onlyCrashes {
 				for _, item := range c.Errors {
-					rollbar.Error(item.Err, map[string]string{
+					rollbar.Error(item.Err, map[string]interface{}{
 						"meta":     fmt.Sprint(item.Meta),
 						"endpoint": c.Request.RequestURI,
+						"params":   c.Request.URL.Query(),
 					})
 				}
 			}
