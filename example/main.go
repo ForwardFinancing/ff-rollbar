@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	ffrollbar "github.com/gin-contrib/ff-rollbar"
+	ffrollbar "github.com/ForwardFinancing/ff-rollbar"
 	"github.com/gin-gonic/gin"
 	"github.com/rollbar/rollbar-go"
 )

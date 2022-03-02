@@ -1,4 +1,4 @@
-module github.com/gin-contrib/ff-rollbar
+module github.com/ForwardFinancing/ff-rollbar
 
 go 1.13
 
