@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"runtime"
 	"runtime/debug"
 
 	"github.com/gin-gonic/gin"
@@ -12,13 +11,31 @@ import (
 )
 
 // Recovery middleware for rollbar error monitoring
-func Recovery(onlyCrashes bool) gin.HandlerFunc {
+func Recovery(token string, environment string, onlyCrashes bool) gin.HandlerFunc {
+	// Recover without logging to Rollbar if no token is provided
+	if token == "" {
+		return func(c *gin.Context) {
+			defer func() {
+				if rval := recover(); rval != nil {
+					debug.PrintStack()
+					c.AbortWithStatus(http.StatusInternalServerError)
+				}
+			}()
+
+			c.Next()
+		}
+	}
+
+	// Configure since token is provided
+	rollbar.SetToken(token)
+	rollbar.SetEnvironment(translateEnvironment(environment))
+
 	return func(c *gin.Context) {
 		defer func() {
 			if rval := recover(); rval != nil {
 				debug.PrintStack()
 
-				rollbar.Critical(errors.New(fmt.Sprint(rval)), getCallers(3), map[string]interface{}{
+				rollbar.Critical(errors.New(fmt.Sprint(rval)), map[string]interface{}{
 					"endpoint": c.Request.RequestURI,
 					"params":   c.Request.URL.Query(),
 				})
@@ -41,8 +58,10 @@ func Recovery(onlyCrashes bool) gin.HandlerFunc {
 	}
 }
 
-func getCallers(skip int) (pc []uintptr) {
-	pc = make([]uintptr, 1000)
-	i := runtime.Callers(skip+1, pc)
-	return pc[0:i]
+func translateEnvironment(environment string) string {
+	if environment == "prod" {
+		return "production"
+	} else {
+		return environment
+	}
 }
