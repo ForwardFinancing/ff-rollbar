@@ -13,7 +13,7 @@ func main() {
 	// rollbar.SetEnvironment("production") // defaults to "development"
 
 	r := gin.Default()
-	r.Use(ffrollbar.Recovery("ROLLBAR_ACCESS_TOKEN", "development", false))
+	r.Use(ffrollbar.Recovery("ROLLBAR_ACCESS_TOKEN", "development", "ERROR"))
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)

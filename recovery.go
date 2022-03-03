@@ -1,4 +1,4 @@
-package ffrollbar
+package rollbarrecovery
 
 import (
 	"errors"
@@ -11,9 +11,9 @@ import (
 )
 
 // Recovery middleware for rollbar error monitoring
-func Recovery(token string, environment string, onlyCrashes bool) gin.HandlerFunc {
-	// Recover without logging to Rollbar if no token is provided
-	if token == "" {
+func Recovery(token string, environment string, logLevel string) gin.HandlerFunc {
+	// Recover without logging to Rollbar if no token is provided or logLevel is OFF
+	if token == "" || logLevel == "OFF" {
 		return func(c *gin.Context) {
 			defer func() {
 				if rval := recover(); rval != nil {
@@ -26,7 +26,7 @@ func Recovery(token string, environment string, onlyCrashes bool) gin.HandlerFun
 		}
 	}
 
-	// Configure since token is provided
+	// Configure since token is provided and logLevel is not OFF
 	rollbar.SetToken(token)
 	rollbar.SetEnvironment(translateEnvironment(environment))
 
@@ -43,7 +43,8 @@ func Recovery(token string, environment string, onlyCrashes bool) gin.HandlerFun
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 
-			if !onlyCrashes {
+			// Do not log errors to Rollbar if logLevel is FATAL
+			if logLevel != "FATAL" {
 				for _, item := range c.Errors {
 					rollbar.Error(item.Err, map[string]interface{}{
 						"meta":     fmt.Sprint(item.Meta),
